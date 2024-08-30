@@ -78,17 +78,9 @@ class WebScraper:
         raise Exception(f"Failed to fetch page content after {self.retries} attempts")
 
 
-def main():
-    start = time.time()
-    driver_setup = ChromeDriverSetup()
-    scraper = WebScraper(driver_setup)
-    item_in_page = 50
-    max_pages = 100
-    page_number = 1
+def scrape_main_page_urls(main_url_template: str, max_pages: int, page_number: int, item_in_page: int,
+                          scraper: WebScraper):
     content_list = []
-    total_scraped_links = 0
-    main_url_template = 'https://qavanin.ir/?PageNumber={}&page={}&size={}'
-
     for _ in range(max_pages):
         main_url = main_url_template.format(page_number, page_number, item_in_page)
         try:
@@ -97,20 +89,59 @@ def main():
         except Exception as e:
             print(f"Skipping page {page_number} due to error: {e}")
             continue
+    return content_list
 
-    parser = HTMLLinkExtractor()
+
+def scrape_pages(law_url_template: str, ids: list, scraper: WebScraper, page_number: int):
+    pages_html = []
+    for _id in ids:
+        main_url = law_url_template.format(_id)
+        try:
+            pages_html.append(scraper.get_page_content(main_url))
+
+        except Exception as e:
+            print(f"Skipping page {page_number} due to error: {e}")
+            continue
+    return pages_html
+
+
+def extract_links(parser: HTMLLinkExtractor, content_list: list, ids: list, total_scraped_links: int):
+    global extracted_part
     for content in content_list:
         links = parser.extract_links(content)
         for link in links:
             parts = link.split("/Law/TreeText/?IDS=")  # Correctly split each link
             if len(parts) > 1:  # Ensure there's something to extract
                 extracted_part = parts[1]  # Change to parts[1] to get the ID part
-                print(extracted_part)
+                ids.append(extracted_part)
                 total_scraped_links += 1
+    return extracted_part, total_scraped_links, ids
+
+
+def main():
+    start = time.time()
+    item_in_page = 25
+    max_pages = 1
+    page_number = 1
+    total_scraped_links = 0
+    ids = []
+    main_url_template = 'https://qavanin.ir/?PageNumber={}&page={}&size={}'
+    law_url_template = "https://qavanin.ir/Law/TreeText/?IDS={}"
+    driver_setup = ChromeDriverSetup()
+    scraper = WebScraper(driver_setup)
+    content_list = scrape_main_page_urls(main_url_template, max_pages, page_number, item_in_page, scraper)
+    parser = HTMLLinkExtractor()
+    extracted_parts, total_scraped_links, ids = extract_links(parser, content_list, ids, total_scraped_links)
+    pages_html = scrape_pages(law_url_template, ids, scraper, page_number)
+    for page in pages_html:
+        with open(f"text.txt", "a") as f:
+            f.write(page)
     end = time.time()
     total_time = end - start
     print("Total scraped links(IDs extracted): ", total_scraped_links)
-    print(f"scraped {max_pages} pages, each page contained {item_in_page} items and it took {total_time // 60}")
+    print(f"scraped {max_pages} pages, each page contained {item_in_page} items")
+    print(f"scraped html of {len(pages_html)}")
+    print(f"total time: {total_time} seconds")
 
 
 if __name__ == "__main__":
