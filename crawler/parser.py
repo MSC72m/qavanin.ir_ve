@@ -8,7 +8,7 @@ class HTMLLinkExtractor:
         selector = Selector(text=html_content)
         hrefs = selector.xpath('//div[@id="main"]//table[@class="border-list table table-striped table-hover"]//td[@class="text-justify"]/a/@href').getall()
         self.urls.extend(hrefs)
-        return self.urls
+        return self.urls  # Changed from yield to return
 
     def get_urls(self):
         return self.urls
