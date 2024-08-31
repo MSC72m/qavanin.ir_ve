@@ -1,0 +1,10 @@
+selenium==4.9.0
+webdriver-manager==3.8.6
+scrapy==2.8.0
+fastapi==0.95.1
+uvicorn==0.22.0
+sqlalchemy==2.0.12
+psycopg2-binary==2.9.6
+sentence-transformers==2.2.2
+markdown==3.4.3
+python-dotenv==1.0.0
