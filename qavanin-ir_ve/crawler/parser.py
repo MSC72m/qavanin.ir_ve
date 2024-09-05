@@ -26,6 +26,11 @@ class HTMLParserEachPage:
         self.pages = []
 
     def extract_text(self, html_content: object):
+        """since we are only extracting P tags it is not wise to keep the html and then convert it to markdown it
+        will be more sophisticated and will require more resources. since it is all P tags we are able to extract the
+        text part only and keep that and then convert that to markdown. I think this solution aslong as we don't need
+        other tags like tables, list etc. is better. from my knowledge qavanin.ir only uses P tags so this method will
+        work"""
         try:
             selector = Selector(text=html_content, type="html")
 
@@ -37,8 +42,8 @@ class HTMLParserEachPage:
                 logger.warning("No <p> tags with class 'SecTex' were found.")
             else:
                 logger.info(f"Found {len(p_tags)} <p> tags with class 'SecTex'.")
-
-            extracted_text = ' '.join(p_tags)
+            # two \n's are needed because Markdown requires it
+            extracted_text = '\n\n'.join(p_tags)
             self.pages.append(extracted_text)
 
             return extracted_text  # Return only the newly extracted text

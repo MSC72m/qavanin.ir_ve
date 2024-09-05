@@ -9,7 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 import time
-from parser import HTMLLinkExtractor, HTMLParserEachPage
+from .parser import HTMLLinkExtractor, HTMLParserEachPage
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -69,7 +69,7 @@ class WebScraper:
             try:
                 self.open_driver()
                 self.driver.get(url)
-                time.sleep(4)
+                time.sleep(3)
                 WebDriverWait(self.driver, self.timeout).until(
                     EC.presence_of_element_located((By.TAG_NAME, "body"))
                 )
@@ -90,14 +90,13 @@ class Scraper:
         self.link_parser = link_parser
         self.page_parser = page_parser
 
-    def scrape_main_pages(self, url_template: str, max_pages: int, page_number: int, item_in_page: int):
+    def scrape_main_pages(self, url_template: str, start_page:int, last_page: int, item_in_page: int):
         content_list = []
-        for _ in range(max_pages):
+        for page_number in range(start_page, last_page + 1):
             url = url_template.format(page_number, page_number, item_in_page)
             content = self.web_scraper.get_page_content(url)
             if content:
                 content_list.append(content)
-                page_number += 1
             else:
                 logger.warning(f"Skipping page {page_number} due to error")
         return content_list
@@ -121,5 +120,4 @@ class Scraper:
             else:
                 logger.warning(f"Skipping page with ID {_id} due to error")
         return pages_html
-
 
