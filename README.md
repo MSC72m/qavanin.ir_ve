@@ -7,7 +7,7 @@ This project is a web scraper and API for the Qavanin.ir website. It crawls rand
 ```
 qavanin_scraper/
 │
-├── scraper/
+├── crawler/
 │   ├── __init__.py
 │   ├── web_scraper.py
 │   ├── parser.py

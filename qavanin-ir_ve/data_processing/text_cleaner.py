@@ -1,7 +1,7 @@
 import re
 
 
-def enhanced_convert_to_markdown(text):
+def convert_to_markdown(text):
     markdown_output = ""
 
     # Convert Titles and Headings

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.sql import func
+from sqlalchemy.orm import joinedload
 from typing import List, Optional
 import numpy as np
 import logging
@@ -24,76 +24,120 @@ def get_db_session():
         session.close()
 
 
-def get_closest_document(query_embedding: List[float], limit: int) -> List[str]:
+def get_closest_document(query_embedding: List[float], limit: int) -> List[dict]:
     with get_db_session() as session:
         try:
-            # Perform similarity search using <-> for L2 distance
-            closest_documents = session.query(law_documents.content).order_by(
+            closest_documents = session.query(law_documents.id, law_documents.content).order_by(
                 law_documents.embedding.l2_distance(query_embedding)
             ).limit(limit).all()
 
-            # Extract content from the result and return as a list of strings
-            return [doc.content for doc in closest_documents]
+            logger.debug(f"Closest documents fetched: {closest_documents}")
+
+            if not closest_documents:
+                logger.warning(f"No documents found within the limit of {limit}.")
+
+            return [{"id": doc.id, "content": doc.content} for doc in closest_documents]
+        except SQLAlchemyError as e:
+            logger.error(f"Database error in get_closest_document: {str(e)}")
+            return []
         except Exception as e:
-            logger.error(f"Error in get_closest_document: {str(e)}")
-            raise
+            logger.error(f"Unexpected error in get_closest_document: {str(e)}")
+            return []
+
 
 def insert_document(content, embeds):
-    # Convert embeds to a list of Python floats
     embeds_list = [float(x) for x in embeds]
     with get_db_session() as session:
         try:
-            # Assume LawDocument is your SQLAlchemy model
             document = law_documents(
                 content=content,
                 embedding=embeds_list,
-                updated_at=None  # or the appropriate datetime
+                updated_at=None
             )
             session.add(document)
             session.commit()
+        except SQLAlchemyError as e:
+            session.rollback()
+            logger.error(f"Database error inserting document: {e}")
         except Exception as e:
             session.rollback()
-            print(f"Error inserting document: {e}")
+            logger.error(f"Unexpected error inserting document: {e}")
 
 
-def get_document_by_id(document_id: int) -> Optional[law_documents]:
+def get_document_by_id(document_id: int):
     with get_db_session() as session:
-        return session.query(law_documents).filter(law_documents.id == document_id).first()
+        try:
+            # Load all attributes eagerly
+            document = session.query(law_documents).options(joinedload('*')).filter_by(id=document_id).first()
+            if not document:
+                return None
+            document_data = {
+                "id": document.id,
+                "content": document.content
+            }
+            return document_data
+        except Exception as e:
+            logger.error(f"Error retrieving document: {str(e)}")
+            return None
 
 
-def update_document(document_id: int, content: str, embedding: List[float]) -> bool:
-    with get_db_session() as session:
-        document = session.query(law_documents).filter(law_documents.id == document_id).first()
-        if document:
+def update_document(document_id: int, content: str, embedding: List[float]):
+    try:
+        if not isinstance(embedding, list) or not all(isinstance(x, float) for x in embedding):
+            logger.error("Invalid embedding format")
+            return None
+
+        with get_db_session() as session:
+            document = session.query(law_documents).filter(law_documents.id == document_id).first()
+            if not document:
+                logger.warning(f"Document with ID {document_id} not found")
+                return None
+
             document.content = content
             document.embedding = embedding
-            return True
-        return False
+            session.commit()
+
+            updated_document = {
+                "content": document.content,
+                "updated_at": document.updated_at
+            }
+            return updated_document
+
+    except SQLAlchemyError as e:
+        logger.error(f"Database error in update_document: {e}")
+        return None
+
+    except Exception as e:
+        logger.error(f"Unexpected error in update_document: {e}")
+        return None
 
 
 def delete_document(document_id: int) -> bool:
     with get_db_session() as session:
-        document = session.query(law_documents).filter(law_documents.id == document_id).first()
-        if document:
-            session.delete(document)
-            return True
-        return False
-
-
-def batch_insert_documents(documents: List[dict]) -> List[law_documents]:
-    with get_db_session() as session:
-        db_documents = [law_documents(content=doc['content'], embedding=doc['embedding']) for doc in documents]
-        session.bulk_save_objects(db_documents)
-        session.flush()
-        return db_documents
-
-
-def get_paginated_documents(page: int = 1, per_page: int = 10) -> List[law_documents]:
-    with get_db_session() as session:
-        return session.query(law_documents).order_by(law_documents.id).offset((page - 1) * per_page).limit(
-            per_page).all()
+        try:
+            document = session.query(law_documents).filter(law_documents.id == document_id).first()
+            if document:
+                session.delete(document)
+                session.commit()
+                return True
+            return False
+        except SQLAlchemyError as e:
+            session.rollback()
+            logger.error(f"Database error in delete_document: {e}")
+            return False
+        except Exception as e:
+            session.rollback()
+            logger.error(f"Unexpected error in delete_document: {e}")
+            return False
 
 
 def get_document_count() -> int:
     with get_db_session() as session:
-        return session.query(law_documents).count()
+        try:
+            return session.query(law_documents).count()
+        except SQLAlchemyError as e:
+            logger.error(f"Database error in get_document_count: {str(e)}")
+            return 0
+        except Exception as e:
+            logger.error(f"Unexpected error in get_document_count: {str(e)}")
+            return 0

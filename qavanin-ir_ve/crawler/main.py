@@ -1,7 +1,7 @@
 from ..crawler.web_scraper import ChromeDriverSetup, WebScraper, Scraper, HTMLParserEachPage, HTMLLinkExtractor
 import logging
 import time
-from ..data_processing.text_cleaner import enhanced_convert_to_markdown
+from ..data_processing.text_cleaner import convert_to_markdown
 from ..database.db_oprations import insert_document, get_document_count
 from ..database.models import init_db, check_pgvector_extension
 from ..data_processing.vectorizer import generate_embeddings
@@ -11,12 +11,6 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    """
-    Temporarily saving scraped pages to 'text.txt'. This is needed for the implementation of the data cleaning process,
-    which includes transforming HTML tags into Markdown format. Next steps involve implementing the VE (validation and
-    enrichment) part, and subsequently saving both the VE output and the cleaned Markdown content into a PostgreSQL database.
-    There is still a lot of work to be done.
-    """
     global driver_setup
     start = time.time()
     item_in_page = 50
