@@ -31,7 +31,7 @@ def main():
 
         # saving the html into a text file for later on. TEMP
         for page in pages_html:
-            content = enhanced_convert_to_markdown(page)
+            content = convert_to_markdown(page)
             embeds = generate_embeddings(page)
             insert_document(content, embeds)
 
