@@ -1,0 +1,10 @@
+selenium==4.5.0
+webdriver-manager==3.8.5
+scrapy==2.6.1
+psycopg2-binary==2.9.3
+pgvector==0.3.2
+sqlalchemy==1.4.39
+numpy==1.22.3
+
+
+

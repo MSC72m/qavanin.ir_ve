@@ -1,7 +1,22 @@
 import re
 
-
 def convert_to_markdown(text):
+    """
+    Convert raw text to a formatted Markdown structure, specifically tailored for legal documents.
+    # note the requirements which were needed in formal documents where given to AI and this replaced the markdown libraries
+    This function applies various transformations to the input text, including:
+    - Converting titles and headings
+    - Formatting dates
+    - Handling numbered lists and bullet points
+    - Formatting specific legal document structures (e.g., articles, clauses, notes)
+    - Processing Persian text elements
+
+    Args:
+        text (str): The raw text to be converted to Markdown.
+
+    Returns:
+        str: The formatted Markdown text.
+    """
     markdown_output = ""
 
     # Convert Titles and Headings
@@ -42,4 +57,3 @@ def convert_to_markdown(text):
             markdown_output += f"\n\n{para.strip()}"
 
     return markdown_output
-

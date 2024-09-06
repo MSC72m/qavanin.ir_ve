@@ -16,13 +16,27 @@ logger = logging.getLogger(__name__)
 
 
 class WebDriverSetup(ABC):
+    """Abstract base class for WebDriver setup."""
+
     @abstractmethod
     def create_driver(self):
+        """Create and return a WebDriver instance."""
         pass
 
 
 class ChromeDriverSetup(WebDriverSetup):
+    """Chrome WebDriver setup implementation."""
+
     def create_driver(self):
+        """
+        Create and return a Chrome WebDriver instance with specific options.
+
+        Returns:
+            webdriver.Chrome: Configured Chrome WebDriver instance.
+
+        Raises:
+            WebDriverException: If the WebDriver could not be initialized.
+        """
         options = Options()
         options.headless = True
         options.add_argument("--disable-gpu")
@@ -42,29 +56,52 @@ class ChromeDriverSetup(WebDriverSetup):
 
 
 class WebScraper:
+    """Manages the web scraping process using Selenium WebDriver."""
+
     def __init__(self, driver_setup: WebDriverSetup, timeout: int = 40, retries: int = 3):
+        """
+        Initialize the WebScraper.
+
+        Args:
+            driver_setup (WebDriverSetup): The WebDriver setup to use.
+            timeout (int): Maximum wait time for page loads (default: 40 seconds).
+            retries (int): Number of retries for failed page loads (default: 3).
+        """
         self.driver_setup = driver_setup
         self.timeout = timeout
         self.driver = None
         self.retries = retries
 
     def __enter__(self):
+        """Context manager entry point."""
         self.open_driver()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        """Context manager exit point."""
         self.close_driver()
 
     def open_driver(self):
+        """Open the WebDriver if it's not already open."""
         if self.driver is None:
             self.driver = self.driver_setup.create_driver()
 
     def close_driver(self):
+        """Close the WebDriver if it's open."""
         if self.driver:
             self.driver.quit()
             self.driver = None
 
     def get_page_content(self, url):
+        """
+        Get the content of a webpage.
+
+        Args:
+            url (str): The URL of the page to scrape.
+
+        Returns:
+            str: The page source if successful, None otherwise.
+        """
         for attempt in range(self.retries):
             try:
                 self.open_driver()
@@ -85,12 +122,34 @@ class WebScraper:
 
 
 class Scraper:
+    """Orchestrates the scraping process using WebScraper and parser classes."""
+
     def __init__(self, web_scraper: WebScraper, link_parser: HTMLLinkExtractor, page_parser: HTMLParserEachPage):
+        """
+        Initialize the Scraper.
+
+        Args:
+            web_scraper (WebScraper): The WebScraper instance to use.
+            link_parser (HTMLLinkExtractor): The link extractor to use.
+            page_parser (HTMLParserEachPage): The page parser to use.
+        """
         self.web_scraper = web_scraper
         self.link_parser = link_parser
         self.page_parser = page_parser
 
     def scrape_main_pages(self, url_template: str, start_page:int, last_page: int, item_in_page: int):
+        """
+        Scrape multiple pages using a URL template.
+
+        Args:
+            url_template (str): The URL template to use.
+            start_page (int): The first page number to scrape.
+            last_page (int): The last page number to scrape.
+            item_in_page (int): The number of items per page.
+
+        Returns:
+            list: A list of page contents.
+        """
         content_list = []
         for page_number in range(start_page, last_page + 1):
             url = url_template.format(page_number, page_number, item_in_page)
@@ -102,6 +161,15 @@ class Scraper:
         return content_list
 
     def extract_links(self, content_list):
+        """
+        Extract links from a list of page contents.
+
+        Args:
+            content_list (list): A list of page contents.
+
+        Returns:
+            list: A list of extracted links.
+        """
         all_links = []
         for content in content_list:
             links = self.link_parser.extract_links(content)
@@ -109,6 +177,15 @@ class Scraper:
         return all_links
 
     def scrape_pages(self, url_template: str, ids: list):
+        """
+        Scrape individual pages using a list of IDs.
+
+        :Args:
+            url_template (str): The URL template to use.
+            ids (list): A list of page IDs to scrape.
+
+        returns: A list of page contents.
+        """
         pages_html = []
         for _id in ids:
             url = url_template.format(_id)

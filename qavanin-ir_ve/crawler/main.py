@@ -1,27 +1,39 @@
 from ..crawler.web_scraper import ChromeDriverSetup, WebScraper, Scraper, HTMLParserEachPage, HTMLLinkExtractor
 import logging
 import time
-from ..data_processing.text_cleaner import convert_to_markdown
-from ..database.db_oprations import insert_document, get_document_count
-from ..database.models import init_db, check_pgvector_extension
-from ..data_processing.vectorizer import generate_embeddings
+from data_processing.text_cleaner import convert_to_markdown
+from database.db_oprations import insert_document, get_document_count
+from database.models import init_db, check_pgvector_extension
+from data_processing.vectorizer import generate_embeddings
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
 def main():
+    """
+    Main function to orchestrate the web scraping process.
+
+    This function initializes the necessary components, performs the web scraping,
+    processes the scraped data, and stores it in the database.
+    """
     global driver_setup
     start = time.time()
-    item_in_page = 50
+    # total links to load in each page
+    item_in_page = 25
+    # first page that crawling will started at
     start_page = 1
-    last_page = 7
+    # last page which will be scraped. (from start_page to last_page)
+    last_page = 1
+    # PageNumber and page will be the page's number and size will be item_in_page
     main_url_template = 'https://qavanin.ir/?PageNumber={}&page={}&size={}'
     law_url_template = "https://qavanin.ir{}"
     try:
+        # initializing Chrome driver
+        init_db()
         driver_setup = ChromeDriverSetup()
     except Exception as e:
-        logger.error(f"error initializing driver: {e}")
+        logger.error(f"error initializing driver and db : {e}")
     with WebScraper(driver_setup) as web_scraper:
         scraper = Scraper(web_scraper, HTMLLinkExtractor(), HTMLParserEachPage())
 
@@ -29,7 +41,7 @@ def main():
         ids = scraper.extract_links(content_list)
         pages_html = scraper.scrape_pages(law_url_template, ids)
 
-        # saving the html into a text file for later on. TEMP
+        # Process and store the scraped content
         for page in pages_html:
             content = convert_to_markdown(page)
             embeds = generate_embeddings(page)

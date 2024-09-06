@@ -4,26 +4,33 @@ import numpy as np
 # Load the SentenceTransformer model
 model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
+
 def generate_embeddings(sentences: str) -> list[float]:
-    # Ensure the input is a list of sentences
+    """
+    Generate vector embeddings for the given text using a pre-trained Sentence Transformer model.
+
+    Args:
+        sentences (str): A string or list of strings to generate embeddings for.
+
+    Returns:
+        list[float]: A 1-dimensional list of floats representing the text embeddings.
+
+    Raises:
+        ValueError: If the generated embeddings are not in the expected format.
+    """
     if isinstance(sentences, str):
         sentences = [sentences]
 
     # Generate embeddings
     embeddings = model.encode(sentences)
-
-    # Ensure we're working with a numpy array
     if not isinstance(embeddings, np.ndarray):
         embeddings = np.array(embeddings)
 
-    # If we have a 2D array with only one row, flatten it
     if len(embeddings.shape) == 2 and embeddings.shape[0] == 1:
         embeddings = embeddings.flatten()
 
-    # Convert the embeddings to a 1-dimensional list of floats
     embeddings_list = embeddings.tolist()
 
-    # Ensure the embeddings are a 1-dimensional list of floats
     if not isinstance(embeddings_list, list) or not all(isinstance(x, float) for x in embeddings_list):
         raise ValueError("Embeddings must be a 1-dimensional list of floats.")
 
