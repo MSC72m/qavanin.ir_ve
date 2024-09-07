@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException, status
-from fastapi.responses import JSONResponse
 from data_processing.vectorizer import generate_embeddings
 from database.db_oprations import get_closest_document, get_document_count, get_document_by_id, update_document, \
     delete_document

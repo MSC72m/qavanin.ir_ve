@@ -1,6 +1,6 @@
 ﻿# qavanin.ir Scraper and API
 
-## Table of Contents
+## Navigation Table
 - [Overview](#overview)
 - [Features](#features)
 - [Installation](#installation)
@@ -203,8 +203,9 @@ qavanin-ir_ve/
 │
 ├── database/
 │   ├── models.py
-│   └── db_operations.py
-│
+│   └── db_operations.py    
+│   ├── .env
+│ 
 ├── api/
 │   ├── main.py
 │   └── endpoints.py
@@ -219,7 +220,6 @@ qavanin-ir_ve/
 │   ├── test_vectorizer.py
 │   └── test_web_scraper.py
 │
-├── .env
 ├── requirements.txt
 ├── Dockerfile
 └── README.md
@@ -231,7 +231,7 @@ qavanin-ir_ve/
 2. **SQLAlchemy**
 3. **psycopg2-binary**
 4. **pgvector**
-5. **requests**
+5. **selenium**
 6. **sentence-transformers**
 
 For a complete list, refer to the requirements.txt file.
@@ -247,13 +247,9 @@ Tests are located in the `tests/` directory and follow this structure:
 ```
 tests/
 ├── init.py
-├── test_api.py
-├── test_db_operations.py
-├── test_models.py
-├── test_parser.py
-├── test_text_cleaner.py
-├── test_vectorizer.py
-└── test_web_scraper.py
+├── test_api_endpoints.py
+├── test_crawler.py
+├── test_db.py
 ```
 ### Running Tests
 

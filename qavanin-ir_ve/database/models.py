@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import logging
 from sqlalchemy import create_engine, Column, Integer, Text, DateTime, Index, text, inspect
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql import func
 from sqlalchemy.schema import DDL
@@ -95,7 +95,7 @@ def init_db():
 
             # Check pgvector extension
             result = connection.execute(text("SELECT extname FROM pg_extension WHERE extname = 'vector';"))
-            if result.fetchone():
+            if result.scalar():  # Using scalar to check for a single value
                 logger.info("pgvector extension is properly installed.")
             else:
                 raise DatabaseInitializationError(
@@ -104,6 +104,7 @@ def init_db():
     except Exception as e:
         logger.error(f"Error during database initialization: {str(e)}")
         raise DatabaseInitializationError(f"Failed to initialize database: {str(e)}") from e
+
 
 
 def get_db():

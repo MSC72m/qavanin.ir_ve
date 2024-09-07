@@ -24,7 +24,7 @@ def main():
         # first page that crawling will started at
         start_page = 1
         # last page which will be scraped. (from start_page to last_page)
-        last_page = 1
+        last_page = 2
         # PageNumber and page will be the page's number and size will be item_in_page
         main_url_template = 'https://qavanin.ir/?PageNumber={}&page={}&size={}'
         law_url_template = "https://qavanin.ir{}"

@@ -27,6 +27,8 @@ class WebDriverSetup(ABC):
 class ChromeDriverSetup(WebDriverSetup):
     """Chrome WebDriver setup implementation."""
 
+
+
     def create_driver(self):
         """
         Create and return a Chrome WebDriver instance with specific options.
