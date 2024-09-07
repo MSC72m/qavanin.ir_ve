@@ -44,7 +44,7 @@ WORKDIR /app
 COPY . /app
 
 # Install Python dependencies for the API
-RUN pip3 install --no-cache-dir fastapi==0.75.0 uvicorn==0.17.0 --break-system-packages
+RUN pip3 install --no-cache-dir -r requirements.txt --break-system-packages
 
 # Expose the PostgreSQL port and the API port
 EXPOSE 5432 8000
