@@ -17,6 +17,7 @@
 - [Configuration](#configuration)
 - [Project Structure](#project-structure)
 - [Dependencies](#dependencies)
+- [Testing](#testing)
 - [Future Improvements](#future-improvements)
 - [Error Handling](#error-handling)
 - [Possible issues](#possible-issues)
@@ -201,6 +202,16 @@ qavanin_scraper/
 │   ├── main.py
 │   └── endpoints.py
 │
+├── tests/
+│   ├── __init__.py
+│   ├── test_api.py
+│   ├── test_db_operations.py
+│   ├── test_models.py
+│   ├── test_parser.py
+│   ├── test_text_cleaner.py
+│   ├── test_vectorizer.py
+│   └── test_web_scraper.py
+│
 ├── .env
 ├── requirements.txt
 ├── Dockerfile
@@ -209,15 +220,59 @@ qavanin_scraper/
 ## Dependencies
 ### Main dependencies include:
 
-FastAPI
-SQLAlchemy
-psycopg2-binary
-BeautifulSoup4
-requests
-sentence-transformers
-pgvector
+1. **FastAPI**
+2. **SQLAlchemy**
+3. **psycopg2-binary**
+4. **pgvector**
+5. **BeautifulSoup4**
+6. **requests**
+7. **sentence-transformers**
 
 For a complete list, refer to the requirements.txt file.
+
+## Testing
+
+The project uses pytest for automated testing of various components. The test suite covers different modules and functionalities to ensure reliability and correctness.
+
+### Test Structure
+
+Tests are located in the `tests/` directory and follow this structure:
+
+```
+tests/
+├── init.py
+├── test_api.py
+├── test_db_operations.py
+├── test_models.py
+├── test_parser.py
+├── test_text_cleaner.py
+├── test_vectorizer.py
+└── test_web_scraper.py
+```
+### Running Tests
+
+To run the tests, ensure you have pytest installed:
+
+```bash
+pip install pytest
+```
+Then, from the project root directory, run:
+bash
+```bash
+pytest
+```
+This command will discover and run all test files in the tests/ directory.
+
+### Test Coverage
+The test suite covers various aspects of the application:
+1. API functionality (test_api.py)
+2. Database operations (test_db_operations.py)
+3. Data models (test_models.py)
+4. HTML parsing (test_parser.py)
+5. Text cleaning (test_text_cleaner.py)
+6. Vector embedding generation (test_vectorizer.py)
+7. Web scraping functionality (test_web_scraper.py)
+
 
 ## Future Improvements
 
