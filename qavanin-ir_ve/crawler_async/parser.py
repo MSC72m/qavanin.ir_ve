@@ -1,5 +1,4 @@
 import logging
-from scrapy.selector import Selector
 import lxml.html
 
 logging.basicConfig(level=logging.INFO)
