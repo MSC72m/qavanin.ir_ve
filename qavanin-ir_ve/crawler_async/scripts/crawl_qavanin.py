@@ -17,9 +17,8 @@ class QavaninPageCrawler:
         self.chunk_size = chunk_size
         self.files: list[str] = glob.glob("./files/qavanin/*.html")
         self.exists: set[str] = set(
-            [file.split("/")[-1].split(".html")[0] for file in self.files]
+            [file.split("\\")[-1].split(".html")[0] for file in self.files]
         )
-        print(list(self.exists)[:5])
         with open("./files/links.txt", "r", encoding="utf-8") as f:
             self.data: list[dict] = [x.strip() for x in f.readlines()]
         self.pages: list[str] = [
@@ -27,8 +26,7 @@ class QavaninPageCrawler:
             for x in self.data
             if x.split("IDS=")[-1] not in self.exists
         ]
-        print(self.pages[:4])
-        raise Exception()
+
         self.chunked_pages: list[list[str]] = [
             self.pages[i : i + self.chunk_size]
             for i in range(0, len(self.pages), self.chunk_size)
