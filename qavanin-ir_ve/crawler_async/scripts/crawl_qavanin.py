@@ -1,6 +1,6 @@
 import asyncio
 import aiohttp
-from core import BASE_QAVANIN_URL, get_hash
+from crawler_async.core import BASE_QAVANIN_URL, get_hash
 import json
 import glob
 import time, random
@@ -15,17 +15,20 @@ logger = logging.getLogger(__name__)
 class QavaninPageCrawler:
     def __init__(self, chunk_size: int = 50):
         self.chunk_size = chunk_size
-        self.files: list[str] = glob.glob("./qavanin/*.html")
+        self.files: list[str] = glob.glob("./files/qavanin/*.html")
         self.exists: set[str] = set(
             [file.split("/")[-1].split(".html")[0] for file in self.files]
         )
-        with open("result.json", "r", encoding="utf-8") as f:
-            self.data: list[dict] = json.load(f)
+        print(list(self.exists)[:5])
+        with open("./files/links.txt", "r", encoding="utf-8") as f:
+            self.data: list[dict] = [x.strip() for x in f.readlines()]
         self.pages: list[str] = [
-            x["link"].split("IDS=")[-1]
+            x.split("IDS=")[-1]
             for x in self.data
-            if x["link"].split("IDS=")[-1] not in self.exists
+            if x.split("IDS=")[-1] not in self.exists
         ]
+        print(self.pages[:4])
+        raise Exception()
         self.chunked_pages: list[list[str]] = [
             self.pages[i : i + self.chunk_size]
             for i in range(0, len(self.pages), self.chunk_size)
@@ -58,7 +61,7 @@ class QavaninPageCrawler:
 
     async def main(self) -> None:
         # for chunk in self.chunked_pages:
-        for chunk in self.chunked_pages[:1]:  # todo: remove in production
+        for chunk in self.chunked_pages:  # todo: remove in production
             errors = []
             tasks = [self.handle_page(BASE_QAVANIN_URL + page) for page in chunk]
             responses = await asyncio.gather(*tasks)
@@ -66,7 +69,9 @@ class QavaninPageCrawler:
             for page, response in tqdm(zip(chunk, responses)):
 
                 if response and "treeText" in response:
-                    with open(f"./files/qavanin/{page}.html", "w", encoding="utf-8") as f:
+                    with open(
+                        f"./files/qavanin/{page}.html", "w", encoding="utf-8"
+                    ) as f:
                         f.write(response)
                     continue
                 else:
@@ -98,6 +103,3 @@ if __name__ == "__main__":
     end = time.time()
     total_time = end - start
     logger.info(f"Total time: {total_time:.2f} seconds")
-
-
-
