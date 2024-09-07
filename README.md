@@ -5,7 +5,7 @@
 - [Features](#features)
 - [Installation](#installation)
   - [Docker Setup](#docker-setup)
-  - [Manual Setup](#manual-setup)
+  - [Python setup](#python-setup)
 - [Usage](#usage)
   - [Running the Scraper](#running-the-scraper)
   - [Starting the API Server](#starting-the-api-server)
@@ -39,24 +39,26 @@ The qavanin.ir Scraper and API is a comprehensive solution for extracting, proce
 ### Docker Setup
 1. Clone the repository:
     ```bash
-    git clone https://github.com/yourusername/qavanin_scraper.git
-    cd qavanin_scraper
+    git clone https://github.com/MSC72m/qavanin.ir_ve.git
+    cd qavanin-ir_ve/qavanin-ir_ve/database
     ```
 
 2. Build the Docker image:
     ```bash
-    docker build -t my-pgvector-db .
+    docker build -t pgvector_db .
     ```
 
 3. Run the Docker container:
     ```bash
-    docker run -d --name your_container_name -e POSTGRES_DB=qavanin_db -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -p 5432:5432 my-pgvector-db
+    docker run -p 5432:5432 -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=pg-test pgvector_db
     ```
 
-### Manual Setup
+### Python setup
 
 1. Create a virtual environment and activate it:
+    
     ```bash
+   # run this command at root directory /qavanin-ir_ve cd.. if needed
     python -m venv venv
     source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
     ```
@@ -86,13 +88,17 @@ The qavanin.ir Scraper and API is a comprehensive solution for extracting, proce
     ```
 
 2. Run the scraper:
+    first time you run the crawler it needs to download chromium,sentence-transformers  models as its dependency and cuda dependencies so will be little be slow
+    if you ve got any errors relating to chromium on your first tries just try again program is tested and functional sometimes selenium will be buggy
     ```bash
+   # run this command at root directory /qavanin-ir_ve
     python crawler/main.py
     ```
 
 ### Starting the API Server
 1. Start the FastAPI server:
     ```bash
+   # run this command at root directory /qavanin-ir_ve
     uvicorn api.main:app --reload
     ```
 
@@ -180,10 +186,11 @@ Response:
 Database configuration is stored in the `.env` file.
 Web scraping parameters can be adjusted in `crawler/main.py`.
 The SentenceTransformer model can be changed in `data_processing/vectorizer.py`.
+Current docker file is only for database and is located at /qavanin-ir_ve/database/Dockerfile. The dockerfile in the root directory is underdevelopment and is suppose to host DB and API instance
 
 ## Project Structure
 ```
-qavanin_scraper/
+qavanin-ir_ve/
 │
 ├── crawler/
 │   ├── web_scraper.py
@@ -224,9 +231,8 @@ qavanin_scraper/
 2. **SQLAlchemy**
 3. **psycopg2-binary**
 4. **pgvector**
-5. **BeautifulSoup4**
-6. **requests**
-7. **sentence-transformers**
+5. **requests**
+6. **sentence-transformers**
 
 For a complete list, refer to the requirements.txt file.
 
@@ -254,10 +260,10 @@ tests/
 To run the tests, ensure you have pytest installed:
 
 ```bash
+# if is not installed
 pip install pytest
 ```
 Then, from the project root directory, run:
-bash
 ```bash
 pytest
 ```
@@ -276,7 +282,7 @@ The test suite covers various aspects of the application:
 
 ## Future Improvements
 
-The Qavanin.ir Scraper and API is designed to be extensible and scalable, with potential improvements to increase its performance, error handling, and usability. Some of the key future enhancements include:
+The qavanin.ir Scraper and API is designed to be extensible and scalable, with potential improvements to increase its performance, error handling, and usability. Some of the key future enhancements include:
 
 1. **Multithreading or Asyncio for Faster Scraping**  
    Implementing multithreading or asynchronous scraping techniques can significantly speed up the scraping process by allowing multiple pages to be scraped simultaneously.

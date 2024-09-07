@@ -1,9 +1,9 @@
-from ..crawler.web_scraper import ChromeDriverSetup, WebScraper, Scraper, HTMLParserEachPage, HTMLLinkExtractor
+from .web_scraper import ChromeDriverSetup, WebScraper, Scraper, HTMLParserEachPage, HTMLLinkExtractor
 import logging
 import time
 from data_processing.text_cleaner import convert_to_markdown
 from database.db_oprations import insert_document, get_document_count
-from database.models import init_db, check_pgvector_extension
+from database.models import init_db
 from data_processing.vectorizer import generate_embeddings
 
 logging.basicConfig(level=logging.INFO)
@@ -17,18 +17,18 @@ def main():
     This function initializes the necessary components, performs the web scraping,
     processes the scraped data, and stores it in the database.
     """
-    global driver_setup
-    start = time.time()
-    # total links to load in each page
-    item_in_page = 25
-    # first page that crawling will started at
-    start_page = 1
-    # last page which will be scraped. (from start_page to last_page)
-    last_page = 1
-    # PageNumber and page will be the page's number and size will be item_in_page
-    main_url_template = 'https://qavanin.ir/?PageNumber={}&page={}&size={}'
-    law_url_template = "https://qavanin.ir{}"
     try:
+        start = time.time()
+        # total links to load in each page
+        item_in_page = 25
+        # first page that crawling will started at
+        start_page = 1
+        # last page which will be scraped. (from start_page to last_page)
+        last_page = 1
+        # PageNumber and page will be the page's number and size will be item_in_page
+        main_url_template = 'https://qavanin.ir/?PageNumber={}&page={}&size={}'
+        law_url_template = "https://qavanin.ir{}"
+
         # initializing Chrome driver
         init_db()
         driver_setup = ChromeDriverSetup()
