@@ -70,7 +70,7 @@ The qavanin.ir Scraper and API is a comprehensive solution for extracting, proce
 
 3. Set up your PostgreSQL database and install the `pgvector` extension.
 
-4. Create a `.env` file in the project root and add your database configuration:
+4. Create a `.env` file in /qavanin-ir_ve/database and add your database configuration:
     ```bash
     POSTGRES_USER=your_username
     POSTGRES_PASSWORD=your_password
