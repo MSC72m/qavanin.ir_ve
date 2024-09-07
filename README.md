@@ -1,4 +1,4 @@
-﻿# Qavanin.ir Scraper and API
+﻿# qavanin.ir Scraper and API
 
 ## Table of Contents
 - [Overview](#overview)
@@ -10,22 +10,23 @@
   - [Running the Scraper](#running-the-scraper)
   - [Starting the API Server](#starting-the-api-server)
 - [API Endpoints](#api-endpoints)
-  - [GET /analyzer](#get-analyzer)
-  - [PUT /update_document/{document_id}](#put-updatedocumentdocument_id)
-  - [DELETE /delete_document/{document_id}](#delete-deletedocumentdocument_id)
-  - [GET /get_document/{document_id}](#get-getdocumentdocument_id)
+  - [GET /get_closest_match](#get-get_closest_match)
+  - [PUT /update_document/{document_id}](#put-update_documentdocument_id)
+  - [DELETE /delete_document/{document_id}](#delete-delete_documentdocument_id)
+  - [GET /get_document/{document_id}](#get-get_documentdocument_id)
 - [Configuration](#configuration)
 - [Project Structure](#project-structure)
 - [Dependencies](#dependencies)
 - [Future Improvements](#future-improvements)
 - [Error Handling](#error-handling)
+- [Possible issues](#possible-issues)
 
 
 ## Overview
-The Qavanin.ir Scraper and API is a comprehensive solution for extracting, processing, and analyzing legal documents from the Qavanin.ir website. It combines web scraping capabilities with natural language processing and a robust API to provide easy access to legal information.
+The qavanin.ir Scraper and API is a comprehensive solution for extracting, processing, and analyzing legal documents from the qavanin.ir website. It combines web scraping capabilities with natural language processing and a robust API to provide easy access to legal information.
 
 ## Features
-- **Web Scraping**: Crawls multiple pages from Qavanin.ir, extracting legal documents.
+- **Web Scraping**: Crawls multiple pages from qavanin.ir, extracting legal documents.
 - **Text Processing**: Cleans HTML content and converts it to a structured Markdown format.
 - **Vector Embeddings**: Generates vector embeddings for processed text using `SentenceTransformer`.
 - **Database Storage**: Stores original text, processed text, and vector embeddings in PostgreSQL with `pgvector` extension.
@@ -224,31 +225,20 @@ The Qavanin.ir Scraper and API is designed to be extensible and scalable, with p
 
 1. **Multithreading or Asyncio for Faster Scraping**  
    Implementing multithreading or asynchronous scraping techniques can significantly speed up the scraping process by allowing multiple pages to be scraped simultaneously.
-
+    Multithreading is possible just need to implement some logic to handle duplication and handle when program gets out of sync for now didn't have the enough time. can use set's and handle errors to not have duplications in db.
+    Sadly currently limited by the website being iran access so no proxy and cdn usage is possible. probably should refactor with playwright to be able to have asynchronous requesting.
+    Other options include having multiple instances of the scraper in docker.
 2. **Improved Error Handling**  
    Adding more robust error handling and recovery mechanisms will ensure smoother scraping even under challenging network conditions or in case of changes to the target website's structure.
 
 3. **Rate Limiting**  
-   Introducing rate limiting will prevent overloading the Qavanin.ir website, ensuring compliance with web scraping best practices and avoiding potential blocking by the server.
+   Introducing rate limiting will prevent overloading the qavanin.ir website, ensuring compliance with web scraping best practices and avoiding potential blocking by the server.
 
-4. **Advanced Querying Options in API**  
-   Expand the API's querying capabilities to support features such as fuzzy search and date range filtering, which will provide more flexibility for users when searching through legal documents.
-
-5. **API Authentication and Authorization**  
-   Implementing secure authentication and authorization layers will ensure that sensitive data is protected, and only authorized users can access or modify the documents.
-
-6. **Performance Optimization for Document Processing**  
+4. **Performance Optimization for Document Processing**  
    Optimizing the performance of large-scale document processing will improve response times when dealing with a high volume of legal documents. Caching mechanisms could also be introduced to optimize frequent queries.
 
-7. **Parallel Processing for Text Cleaning and Vectorization**  
+5. **Parallel Processing for Text Cleaning and Vectorization**  
    To handle large batches of documents, implementing parallel processing for text cleaning and vector embedding generation can help improve the overall efficiency of the data pipeline.
-
-8. **Model Fine-tuning**  
-   Fine-tuning the SentenceTransformer model with a more extensive legal dataset can enhance the accuracy of the similarity searches, providing more relevant results for legal document queries.
-
-9. **Support for Multiple Languages**  
-   Adding support for processing legal documents in multiple languages (besides Persian) would expand the program's usability to a broader audience, making it more versatile for global legal research.
-
 ---
 
 ## Error Handling
@@ -258,3 +248,15 @@ The Qavanin.ir Scraper and API is designed to be extensible and scalable, with p
 **Web scraping failures are handled with retries and logging.**
 **API endpoints include proper error responses and status codes.**
 **Custom exceptions like DatabaseInitializationError are used for specific error scenarios.**
+
+## Possible Issues
+
+- **qavanin.ir Access**: qavanin.ir is an Iran-access website, meaning that it will reject any requests that are not made with an Iranian IP. This might cause problems if your IP is not from Iran.
+
+- **Cloudflare Protection**: qavanin.ir is behind Cloudflare and is protected by it. Reducing the delay might cause some problems with interrupting the bot with puzzles and other security measures.
+
+- **Database Initialization**: Database initialization might fail if it is not correctly set up. Make sure to check this step before proceeding with other steps.
+
+- **Dependencies**: Not having the correct dependencies installed can cause problems. For example, Chromium drivers are required for crawling, and the sentence-transformers library has many dependencies, such as torch and CUDA libraries. Make sure that any errors you encounter are not related to these dependencies.
+
+- **Library Interference**: Some libraries, if not installed currently, might cause problems and interfere with each other. Keep this in mind.
